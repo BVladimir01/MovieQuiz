@@ -16,10 +16,7 @@ final class MovieQuizViewController: UIViewController {
     
     private var questionIndex = 0
     private var userScore = 0
-    private var numQuestions: Int {
-        questions.count
-    }
-    private var buttonsActive = true
+    private var numQuestions: Int { questions.count }
     
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
@@ -44,8 +41,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
+        toggleButtons()
         let color: UIColor = isCorrect ? .ypGreen : .ypRed
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
@@ -54,12 +50,14 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             userScore += 1
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: showNextQuestionOrResults)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1,
+                                      execute: showNextQuestionOrResults)
     }
     
     private func showNextQuestionOrResults() {
         if questionIndex == questions.count - 1 {
-            let quizResults = QuizResultViewModel(text: "Ваш результат: \(userScore)/\(numQuestions)", buttonText: "Сыграть еще раз")
+            let quizResults = QuizResultViewModel(text: "Ваш результат: \(userScore)/\(numQuestions)",
+                                                  buttonText: "Сыграть еще раз")
             show(quiz: quizResults)
         } else {
             questionIndex += 1
@@ -68,8 +66,7 @@ final class MovieQuizViewController: UIViewController {
             show(quiz: newQuizStepView)
         }
         imageView.layer.borderWidth = 0
-        noButton.isEnabled = true
-        yesButton.isEnabled = true
+        toggleButtons()
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -79,9 +76,12 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func show(quiz result: QuizResultViewModel) {
-        let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
+        let alert = UIAlertController(title: result.title,
+                                      message: result.text,
+                                      preferredStyle: .alert)
         
-        let alertAction = UIAlertAction(title: result.buttonText, style: .default) { _ in
+        let alertAction = UIAlertAction(title: result.buttonText,
+                                        style: .default) { _ in
             self.questionIndex = 0
             self.userScore = 0
             let newQuestion = self.questions[self.questionIndex]
@@ -93,12 +93,17 @@ final class MovieQuizViewController: UIViewController {
         
         self.present(alert, animated: true, completion: nil)
     }
+    
+    private func toggleButtons() {
+        noButton.isEnabled.toggle()
+        yesButton.isEnabled.toggle()
+    }
 }
 
 
-extension MovieQuizViewController {
+private extension MovieQuizViewController {
     
-    private struct QuizQuestion {
+     struct QuizQuestion {
         let imageName: String
         let questionedRating: Int
         let correctAnswer: Bool
@@ -107,20 +112,20 @@ extension MovieQuizViewController {
         }
     }
     
-    private struct QuizStepViewModel {
+    struct QuizStepViewModel {
         let image: UIImage
         let question: String
         let questionNumber: String
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         QuizStepViewModel(
             image: UIImage(named: model.imageName) ?? UIImage(),
             question: model.quesion,
             questionNumber: "\(questionIndex + 1)/\(numQuestions)")
     }
     
-    private struct QuizResultViewModel {
+    struct QuizResultViewModel {
         let title: String = "Раунд окончен!"
         let text: String
         let buttonText: String
