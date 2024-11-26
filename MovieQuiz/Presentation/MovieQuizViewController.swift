@@ -23,9 +23,18 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var questionTitle: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        yesButton.titleLabel?.font = .ysDisplayMedium
+        noButton.titleLabel?.font = .ysDisplayMedium
+        textLabel.font = .ysDisplayBold
+        counterLabel.font = .ysDisplayMedium
+        questionTitle.font = .ysDisplayMedium
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 20
+        
         let firstQuizView = convert(model: questions[questionIndex])
         show(quiz: firstQuizView)
     }
@@ -43,8 +52,6 @@ final class MovieQuizViewController: UIViewController {
     private func showAnswerResult(isCorrect: Bool) {
         toggleButtons()
         let color: UIColor = isCorrect ? .ypGreen : .ypRed
-        imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 20
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = color.cgColor
         if isCorrect {
@@ -67,6 +74,11 @@ final class MovieQuizViewController: UIViewController {
         }
         imageView.layer.borderWidth = 0
         toggleButtons()
+    }
+    
+    private func toggleButtons() {
+        noButton.isEnabled.toggle()
+        yesButton.isEnabled.toggle()
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -92,11 +104,6 @@ final class MovieQuizViewController: UIViewController {
         alert.addAction(alertAction)
         
         self.present(alert, animated: true, completion: nil)
-    }
-    
-    private func toggleButtons() {
-        noButton.isEnabled.toggle()
-        yesButton.isEnabled.toggle()
     }
 }
 
@@ -130,6 +137,4 @@ private extension MovieQuizViewController {
         let text: String
         let buttonText: String
     }
-    
-    
 }
