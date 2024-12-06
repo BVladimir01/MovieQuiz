@@ -1,6 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
+    
     private let questions: [QuizQuestion] = [
         .init(imageName: "The Godfather", questionedRating: 6, correctAnswer: true),
         .init(imageName: "The Dark Knight", questionedRating: 6, correctAnswer: true),
@@ -57,8 +58,9 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             userScore += 1
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1,
-                                      execute: showNextQuestionOrResults)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.showNextQuestionOrResults()
+        }
     }
     
     private func showNextQuestionOrResults() {
@@ -93,7 +95,8 @@ final class MovieQuizViewController: UIViewController {
                                       preferredStyle: .alert)
         
         let alertAction = UIAlertAction(title: result.buttonText,
-                                        style: .default) { _ in
+                                        style: .default) { [weak self] _ in
+            guard let self else { return }
             self.questionIndex = 0
             self.userScore = 0
             let newQuestion = self.questions[self.questionIndex]
