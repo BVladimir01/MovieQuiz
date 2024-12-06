@@ -5,7 +5,7 @@ final class MovieQuizViewController: UIViewController {
     private var questionIndex = 0
     private var userScore = 0
     private let numQuestions = 10
-    private let questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion? = nil
     
     @IBOutlet private weak var yesButton: UIButton!
@@ -25,11 +25,10 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel)
-        }
+        let questionFactory = QuestionFactory(delegate: self)
+        self.questionFactory = questionFactory
+        
+        questionFactory.requestNextQuestion()
     }
     
     @IBAction private func noButtonTapped() {
@@ -62,11 +61,7 @@ final class MovieQuizViewController: UIViewController {
             show(quiz: quizResults)
         } else {
             questionIndex += 1
-            if let newQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = newQuestion
-                let newQuizStepView = convert(model: newQuestion)
-                show(quiz: newQuizStepView)
-            }
+            questionFactory?.requestNextQuestion()
         }
         imageView.layer.borderWidth = 0
         toggleButtons()
@@ -93,11 +88,7 @@ final class MovieQuizViewController: UIViewController {
             guard let self else { return }
             self.questionIndex = 0
             self.userScore = 0
-            if let newQuestion = questionFactory.requestNextQuestion() {
-                self.currentQuestion = newQuestion
-                let newQuizStepView = self.convert(model: newQuestion)
-                self.show(quiz: newQuizStepView)
-            }
+            questionFactory?.requestNextQuestion()
         }
         alert.addAction(alertAction)
         self.present(alert, animated: true, completion: nil)
@@ -111,5 +102,16 @@ private extension MovieQuizViewController {
             image: UIImage(named: model.imageName) ?? UIImage(),
             question: model.quesion,
             questionNumber: "\(questionIndex + 1)/\(numQuestions)")
+    }
+}
+
+extension MovieQuizViewController: QuestionFactoryDelegate {
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
 }
