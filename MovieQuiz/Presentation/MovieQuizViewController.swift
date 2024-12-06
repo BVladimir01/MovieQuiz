@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController {
     private let numQuestions = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion? = nil
+    private let alertPresenter = AlertPresenter()
     
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
@@ -27,6 +28,8 @@ final class MovieQuizViewController: UIViewController {
         
         let questionFactory = QuestionFactory(delegate: self)
         self.questionFactory = questionFactory
+        
+        alertPresenter.delegate = self
         
         questionFactory.requestNextQuestion()
     }
@@ -58,7 +61,7 @@ final class MovieQuizViewController: UIViewController {
         if questionIndex == numQuestions - 1 {
             let quizResults = QuizResultViewModel(text: "Ваш результат: \(userScore)/\(numQuestions)",
                                                   buttonText: "Сыграть еще раз")
-            show(quiz: quizResults)
+            gameEnded()
         } else {
             questionIndex += 1
             questionFactory?.requestNextQuestion()
@@ -78,20 +81,14 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    private func show(quiz result: QuizResultViewModel) {
-        let alert = UIAlertController(title: result.title,
-                                      message: result.text,
-                                      preferredStyle: .alert)
-        
-        let alertAction = UIAlertAction(title: result.buttonText,
-                                        style: .default) { [weak self] _ in
-            guard let self else { return }
-            self.questionIndex = 0
-            self.userScore = 0
-            questionFactory?.requestNextQuestion()
+    private func gameEnded() {
+        let alert = AlertModel(title: "Игра окончена", message: "Ваш результат: \(userScore)/\(numQuestions)", buttonText: "Сыграть еще раз") { [weak self] in
+                guard let self else { return }
+                self.questionIndex = 0
+                self.userScore = 0
+                questionFactory?.requestNextQuestion()
         }
-        alert.addAction(alertAction)
-        self.present(alert, animated: true, completion: nil)
+        alertPresenter.presentAlert(alert: alert)
     }
 }
 
