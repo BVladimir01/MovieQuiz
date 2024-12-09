@@ -63,7 +63,7 @@ final class MovieQuizViewController: UIViewController {
     private func showNextQuestionOrResults() {
         if questionIndex == numQuestions - 1 {
             statisticService.store(correct: userScore, total: numQuestions)
-            let result = QuizResultViewModel(title: "Этот раунд окончен",
+            let result = QuizResultViewModel(title: "Этот раунд окончен!",
                                              score: userScore,
                                              numQuestions: numQuestions,
                                              statisticService: statisticService,

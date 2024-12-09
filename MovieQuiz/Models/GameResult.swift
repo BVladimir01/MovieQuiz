@@ -20,6 +20,6 @@ struct GameResult: Codable {
 
 extension GameResult: CustomStringConvertible {
     var  description: String {
-        "\(correct)/\(total) (\(date.formatted(date: .numeric, time: .shortened)))"
+        "\(correct)/\(total) (\(date.dateTimeString))"
     }
 }
