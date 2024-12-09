@@ -37,6 +37,10 @@ final class MovieQuizViewController: UIViewController {
 //        UserDefaults.standard.dictionaryRepresentation().keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+    
     @IBAction private func noButtonTapped() {
         guard let currentQuestion else { return }
         showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
