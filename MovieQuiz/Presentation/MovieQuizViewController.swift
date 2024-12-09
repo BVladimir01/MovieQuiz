@@ -8,6 +8,7 @@ final class MovieQuizViewController: UIViewController {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion? = nil
     private let alertPresenter = AlertPresenter()
+    private let statisticService: StatisticServiceProtocol = StatisticService()
     
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
@@ -32,6 +33,8 @@ final class MovieQuizViewController: UIViewController {
         alertPresenter.delegate = self
         
         questionFactory.requestNextQuestion()
+        
+//        UserDefaults.standard.dictionaryRepresentation().keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
     
     @IBAction private func noButtonTapped() {
@@ -59,9 +62,13 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         if questionIndex == numQuestions - 1 {
-            let quizResults = QuizResultViewModel(text: "Ваш результат: \(userScore)/\(numQuestions)",
-                                                  buttonText: "Сыграть еще раз")
-            gameEnded()
+            statisticService.store(correct: userScore, total: numQuestions)
+            let result = QuizResultViewModel(title: "Этот раунд окончен",
+                                             score: userScore,
+                                             numQuestions: numQuestions,
+                                             statisticService: statisticService,
+                                             buttonText: "Сыграть еще раз")
+            show(quiz: result)
         } else {
             questionIndex += 1
             questionFactory?.requestNextQuestion()
@@ -81,14 +88,14 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    private func gameEnded() {
-        let alert = AlertModel(title: "Игра окончена", message: "Ваш результат: \(userScore)/\(numQuestions)", buttonText: "Сыграть еще раз") { [weak self] in
-                guard let self else { return }
-                self.questionIndex = 0
-                self.userScore = 0
-                questionFactory?.requestNextQuestion()
+    private func show(quiz result: QuizResultViewModel) {
+        let alert = AlertModel(quizResult: result) { [weak self] in
+            guard let self else { return }
+            self.questionIndex = 0
+            self.userScore = 0
+            questionFactory?.requestNextQuestion()
         }
-        alertPresenter.presentAlert(alert: alert)
+        alertPresenter.presentAlert(alert)
     }
 }
 

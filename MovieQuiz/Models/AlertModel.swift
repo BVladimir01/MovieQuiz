@@ -11,3 +11,12 @@ struct AlertModel {
     let buttonText: String
     let action: () -> ()
 }
+
+extension AlertModel {
+    init(quizResult: QuizResultViewModel, action: @escaping () -> ()) {
+        self.title = quizResult.title
+        self.message = quizResult.text
+        self.buttonText = quizResult.buttonText
+        self.action = action
+    }
+}
