@@ -7,6 +7,8 @@ final class MovieQuizViewController: UIViewController {
     private let numQuestions = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion? = nil
+    private let alertPresenter = AlertPresenter()
+    private let statisticService: StatisticServiceProtocol = StatisticService()
     
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
@@ -28,7 +30,14 @@ final class MovieQuizViewController: UIViewController {
         let questionFactory = QuestionFactory(delegate: self)
         self.questionFactory = questionFactory
         
+        alertPresenter.delegate = self
+        
         questionFactory.requestNextQuestion()
+        
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
     }
     
     @IBAction private func noButtonTapped() {
@@ -56,9 +65,13 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         if questionIndex == numQuestions - 1 {
-            let quizResults = QuizResultViewModel(text: "Ваш результат: \(userScore)/\(numQuestions)",
-                                                  buttonText: "Сыграть еще раз")
-            show(quiz: quizResults)
+            statisticService.store(correct: userScore, total: numQuestions)
+            let result = QuizResultViewModel(title: "Этот раунд окончен!",
+                                             score: userScore,
+                                             numQuestions: numQuestions,
+                                             statisticService: statisticService,
+                                             buttonText: "Сыграть еще раз")
+            show(quiz: result)
         } else {
             questionIndex += 1
             questionFactory?.requestNextQuestion()
@@ -79,19 +92,13 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func show(quiz result: QuizResultViewModel) {
-        let alert = UIAlertController(title: result.title,
-                                      message: result.text,
-                                      preferredStyle: .alert)
-        
-        let alertAction = UIAlertAction(title: result.buttonText,
-                                        style: .default) { [weak self] _ in
+        let alert = AlertModel(quizResult: result) { [weak self] in
             guard let self else { return }
             self.questionIndex = 0
             self.userScore = 0
             questionFactory?.requestNextQuestion()
         }
-        alert.addAction(alertAction)
-        self.present(alert, animated: true, completion: nil)
+        alertPresenter.presentAlert(alert)
     }
 }
 
