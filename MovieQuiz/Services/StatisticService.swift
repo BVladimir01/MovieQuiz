@@ -37,6 +37,14 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
+    var totalAccuracy: Double {
+        if gamesCount == 0 {
+            fatalError("total accuracy calculation error: division by zero")
+        } else {
+            Double(correctAnswers)/Double(totalQuestions)
+        }
+    }
+    
     private var correctAnswers: Int {
         get {
             storage.integer(forKey: Keys.correctAnswers.rawValue)
@@ -54,15 +62,6 @@ final class StatisticService: StatisticServiceProtocol {
             storage.set(newValue, forKey: Keys.totalQuestions.rawValue)
         }
     }
-    
-    var totalAccuracy: Double {
-        if gamesCount == 0 {
-            fatalError("total accuracy calculation error: division by zero")
-        } else {
-            Double(correctAnswers)/Double(totalQuestions)
-        }
-    }
-    
     
     func store(correct: Int, total: Int) {
         let now = Date()

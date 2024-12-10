@@ -34,7 +34,6 @@ final class MovieQuizViewController: UIViewController {
         
         questionFactory.requestNextQuestion()
         
-//        UserDefaults.standard.dictionaryRepresentation().keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
