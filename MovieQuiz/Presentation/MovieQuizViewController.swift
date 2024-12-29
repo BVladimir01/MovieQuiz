@@ -16,6 +16,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var questionTitle: UILabel!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,6 +100,19 @@ final class MovieQuizViewController: UIViewController {
             questionFactory?.requestNextQuestion()
         }
         alertPresenter.presentAlert(alert)
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        let alertModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self else { return }
+            self.questionFactory?.requestNextQuestion()
+        }
+        alertPresenter.presentAlert(alertModel)
     }
 }
 
