@@ -78,7 +78,7 @@ class QuestionFactory: QuestionFactoryProtocol {
             
             let rating = Float(movie.rating) ?? 0
             
-            let questionedRating = (5...8).randomElement()!
+            let questionedRating = (6...9).randomElement()!
             let correctAnswer = rating > Float(questionedRating)
             
             let question = QuizQuestion(image: imageData, questionedRating: questionedRating, correctAnswer: correctAnswer)
