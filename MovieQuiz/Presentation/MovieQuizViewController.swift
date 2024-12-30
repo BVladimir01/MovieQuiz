@@ -138,11 +138,9 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
         guard let question else { return }
         currentQuestion = question
         let viewModel = convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-            self?.imageView.layer.borderWidth = 0
-            self?.enableButtons()
-        }
+        show(quiz: viewModel)
+        imageView.layer.borderWidth = 0
+        enableButtons()
     }
     
     func didLoadDataFromServer() {
