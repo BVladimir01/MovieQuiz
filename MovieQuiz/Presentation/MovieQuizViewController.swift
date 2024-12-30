@@ -28,11 +28,13 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         
-        let questionFactory = QuestionFactory(delegate: self)
-        self.questionFactory = questionFactory
+        showLoadingIndicator()
         
         alertPresenter.delegate = self
         
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        self.questionFactory = questionFactory
+        questionFactory.loadData()
         questionFactory.requestNextQuestion()
         
     }
@@ -120,7 +122,7 @@ final class MovieQuizViewController: UIViewController {
 private extension MovieQuizViewController {
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         QuizStepViewModel(
-            image: UIImage(named: model.imageName) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.quesion,
             questionNumber: "\(questionIndex + 1)/\(numQuestions)")
     }
@@ -134,5 +136,14 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
+    }
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
     }
 }
