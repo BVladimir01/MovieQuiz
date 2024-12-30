@@ -54,7 +54,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
-        toggleButtons()
+        disableButtons()
         let color: UIColor = isCorrect ? .ypGreen : .ypRed
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = color.cgColor
@@ -79,15 +79,18 @@ final class MovieQuizViewController: UIViewController {
             questionIndex += 1
             questionFactory?.requestNextQuestion()
         }
-        imageView.layer.borderWidth = 0
-        toggleButtons()
     }
     
-    private func toggleButtons() {
-        noButton.isEnabled.toggle()
-        yesButton.isEnabled.toggle()
+    private func enableButtons() {
+        noButton.isEnabled = true
+        yesButton.isEnabled = true
     }
     
+    private func disableButtons() {
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+    }
+        
     private func show(quiz step: QuizStepViewModel) {
         textLabel.text = step.question
         imageView.image = step.image
@@ -112,7 +115,9 @@ final class MovieQuizViewController: UIViewController {
     private func showNetworkError(message: String) {
         let alertModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
-            self.questionFactory?.requestNextQuestion()
+            self.questionFactory?.loadData()
+//            self.questionFactory?.requestNextQuestion()
+            
         }
         alertPresenter.presentAlert(alertModel)
     }
@@ -135,6 +140,8 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
+            self?.imageView.layer.borderWidth = 0
+            self?.enableButtons()
         }
     }
     
