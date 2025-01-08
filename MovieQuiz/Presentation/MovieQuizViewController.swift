@@ -20,13 +20,23 @@ final class MovieQuizViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         yesButton.titleLabel?.font = .ysDisplayMedium
+        yesButton.accessibilityIdentifier = "Yes"
+        
         noButton.titleLabel?.font = .ysDisplayMedium
+        noButton.accessibilityIdentifier = "No"
+        
         textLabel.font = .ysDisplayBold
+        
         counterLabel.font = .ysDisplayMedium
+        counterLabel.accessibilityIdentifier = "Index"
+        
         questionTitle.font = .ysDisplayMedium
+        
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
+        imageView.accessibilityIdentifier = "Poster"
         
         showLoadingIndicator()
         
