@@ -5,8 +5,10 @@
 //  Created by Vladimir on 06.12.2024.
 //
 
+import Foundation
+
  struct QuizQuestion {
-    let imageName: String
+    let image: Data
     let questionedRating: Int
     let correctAnswer: Bool
     var quesion: String {
