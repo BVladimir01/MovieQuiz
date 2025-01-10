@@ -52,16 +52,6 @@ final class MovieQuizViewController: UIViewController {
         presenter.yesButtonTapped()
     }
     
-    func showAnswerResult(isCorrect: Bool) {
-        disableButtons()
-        let color: UIColor = isCorrect ? .ypGreen : .ypRed
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = color.cgColor
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.presenter.showNextQuestionOrResults()
-        }
-    }
-    
     func enableButtons() {
         noButton.isEnabled = true
         yesButton.isEnabled = true
@@ -88,6 +78,12 @@ final class MovieQuizViewController: UIViewController {
     
     func disableImageBorder() {
         imageView.layer.borderWidth = 0
+    }
+    
+    func highlightImageBorder(answerIsCorrect: Bool) {
+        let color: UIColor = answerIsCorrect ? .ypGreen : .ypRed
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = color.cgColor
     }
     
     func showLoadingIndicator() {

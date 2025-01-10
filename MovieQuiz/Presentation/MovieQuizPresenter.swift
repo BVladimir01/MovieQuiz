@@ -59,10 +59,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         guard let currentQuestion else { return }
         let correct = currentQuestion.correctAnswer ? answer : !answer
         if correct { userScore += 1}
-        viewController?.showAnswerResult(isCorrect: correct)
+        proceedWithAnswer(isCorrect: correct)
     }
     
-    func showNextQuestionOrResults() {
+    func proceedWithAnswer(isCorrect: Bool) {
+        viewController?.disableButtons()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.proceedToNextQuestionOrResults()
+        }
+    }
+    
+    func proceedToNextQuestionOrResults() {
         if isLastQuestion {
             statisticService.store(correct: userScore, total: numQuestions)
             let resultViewModel = QuizResultViewModel(title: "Этот раунд окончен!",
