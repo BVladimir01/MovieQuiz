@@ -2,10 +2,9 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
-    private var userScore = 0
-    private var questionFactory: QuestionFactoryProtocol?
+    var questionFactory: QuestionFactoryProtocol?
     private let alertPresenter = AlertPresenter()
-    private let statisticService: StatisticServiceProtocol = StatisticService()
+    let statisticService: StatisticServiceProtocol = StatisticService()
     private let presenter = MovieQuizPresenter()
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
@@ -64,26 +63,8 @@ final class MovieQuizViewController: UIViewController {
         let color: UIColor = isCorrect ? .ypGreen : .ypRed
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = color.cgColor
-        if isCorrect {
-            userScore += 1
-        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.showNextQuestionOrResults()
-        }
-    }
-    
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion {
-            statisticService.store(correct: userScore, total: presenter.numQuestions)
-            let result = QuizResultViewModel(title: "Этот раунд окончен!",
-                                             score: userScore,
-                                             numQuestions: presenter.numQuestions,
-                                             statisticService: statisticService,
-                                             buttonText: "Сыграть еще раз")
-            show(quiz: result)
-        } else {
-            presenter.incrementQuestionIndex()
-            questionFactory?.requestNextQuestion()
+            self?.presenter.showNextQuestionOrResults()
         }
     }
     
@@ -106,8 +87,7 @@ final class MovieQuizViewController: UIViewController {
     func show(quiz result: QuizResultViewModel) {
         let alert = AlertModel(quizResult: result) { [weak self] in
             guard let self else { return }
-            self.presenter.resetQuestionIndex()
-            self.userScore = 0
+            self.presenter.resetQuestionIndexAndScore()
             questionFactory?.requestNextQuestion()
         }
         alertPresenter.presentAlert(alert)
@@ -126,7 +106,6 @@ final class MovieQuizViewController: UIViewController {
         let alertModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
             self.questionFactory?.loadData()
-//            self.questionFactory?.requestNextQuestion()
             
         }
         alertPresenter.presentAlert(alertModel)
