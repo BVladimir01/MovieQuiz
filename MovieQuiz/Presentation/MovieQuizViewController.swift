@@ -2,14 +2,12 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
-    private var questionIndex = 0
     private var userScore = 0
-    private let numQuestions = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion? = nil
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
-    
+    private let presenter = MovieQuizPresenter()
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
@@ -77,16 +75,16 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
-        if questionIndex == numQuestions - 1 {
-            statisticService.store(correct: userScore, total: numQuestions)
+        if presenter.isLastQuestion {
+            statisticService.store(correct: userScore, total: presenter.numQuestions)
             let result = QuizResultViewModel(title: "Этот раунд окончен!",
                                              score: userScore,
-                                             numQuestions: numQuestions,
+                                             numQuestions: presenter.numQuestions,
                                              statisticService: statisticService,
                                              buttonText: "Сыграть еще раз")
             show(quiz: result)
         } else {
-            questionIndex += 1
+            presenter.incrementQuestionIndex()
             questionFactory?.requestNextQuestion()
         }
     }
@@ -110,7 +108,7 @@ final class MovieQuizViewController: UIViewController {
     private func show(quiz result: QuizResultViewModel) {
         let alert = AlertModel(quizResult: result) { [weak self] in
             guard let self else { return }
-            self.questionIndex = 0
+            self.presenter.resetQuestionIndex()
             self.userScore = 0
             questionFactory?.requestNextQuestion()
         }
@@ -134,20 +132,11 @@ final class MovieQuizViewController: UIViewController {
 }
 
 
-private extension MovieQuizViewController {
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
-        QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.quesion,
-            questionNumber: "\(questionIndex + 1)/\(numQuestions)")
-    }
-}
-
 extension MovieQuizViewController: QuestionFactoryDelegate {
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question else { return }
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
         show(quiz: viewModel)
         imageView.layer.borderWidth = 0
         enableButtons()

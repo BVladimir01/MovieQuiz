@@ -22,7 +22,7 @@ class MoviesLoaderTests: XCTestCase {
             case .success(let result):
                 XCTAssertNotNil(result)
                 XCTAssertEqual(result.items.count, 2)
-            case .failure(let error):
+            case .failure:
                 XCTFail("This loader shouldn't fail")
             }
             expectation.fulfill()
@@ -38,7 +38,7 @@ class MoviesLoaderTests: XCTestCase {
         loader.loadMovies { result in
 //            then
             switch result {
-            case .success(let result):
+            case .success:
                 XCTFail("This loader should fail")
             case .failure(let error):
                 XCTAssertEqual(error as? StubNetworkClient.TestErrors, StubNetworkClient.TestErrors.testError)
