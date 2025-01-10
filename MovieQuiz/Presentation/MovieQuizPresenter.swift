@@ -27,7 +27,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         self.statisticService = StatisticService()
         self.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
-        viewController.showLoadingIndicator()
+        self.viewController?.showLoadingIndicator()
+        self.viewController?.setButtons(enabled: false)
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -57,11 +58,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         guard let currentQuestion else { return }
         let correct = currentQuestion.correctAnswer ? answer : !answer
         if correct { userScore += 1}
-        proceedWithAnswer(isCorrect: correct)
-    }
-    
-    private func proceedWithAnswer(isCorrect: Bool) {
-        viewController?.disableButtons()
+        viewController?.setButtons(enabled: false)
+        viewController?.highlightImageBorder(answerIsCorrect: correct)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.proceedToNextQuestionOrResults()
         }
@@ -91,7 +89,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
             self?.viewController?.disableImageBorder()
-            self?.viewController?.enableButtons()
+            self?.viewController?.setButtons(enabled: true)
         }
     }
     

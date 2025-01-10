@@ -13,6 +13,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var questionTitle: UILabel!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
+    // MARK: - Lifycycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -52,14 +54,9 @@ final class MovieQuizViewController: UIViewController {
         presenter.yesButtonTapped()
     }
     
-    func enableButtons() {
-        noButton.isEnabled = true
-        yesButton.isEnabled = true
-    }
-    
-    func disableButtons() {
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
+    func setButtons(enabled isEnabled: Bool) {
+        noButton.isEnabled = isEnabled
+        yesButton.isEnabled = isEnabled
     }
         
     func show(quiz step: QuizStepViewModel) {
@@ -98,7 +95,6 @@ final class MovieQuizViewController: UIViewController {
         let alertModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
             self.presenter.restartGame()
-            
         }
         alertPresenter.presentAlert(alertModel)
     }
