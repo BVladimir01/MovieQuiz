@@ -94,7 +94,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     func showNetworkError(message: String) {
         let alertModel = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
-            self.presenter.restartGame()
+            self.presenter.reloadGame()
         }
         alertPresenter.presentAlert(alertModel)
     }

@@ -124,9 +124,9 @@
 			isa = PBXGroup;
 			children = (
 				E7D005C92D03275C004E59F7 /* AlertPresenter.swift */,
-				E7D0085F2D30F0C1004E59F7 /* MovieQuizPresenter.swift */,
-				AD1ABAB52831907B00B3E448 /* MovieQuizViewController.swift */,
 				E7D008632D3122B2004E59F7 /* MovieQuizViewControllerProtocol.swift */,
+				AD1ABAB52831907B00B3E448 /* MovieQuizViewController.swift */,
+				E7D0085F2D30F0C1004E59F7 /* MovieQuizPresenter.swift */,
 				AD1ABAB72831907B00B3E448 /* Main.storyboard */,
 			);
 			path = Presentation;

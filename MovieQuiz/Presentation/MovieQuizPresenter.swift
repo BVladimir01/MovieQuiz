@@ -40,6 +40,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     // MARK: - User intentions
     
+    func reloadGame() {
+        questionIndex = 0
+        userScore = 0
+        questionFactory?.loadData()
+    }
+    
     func restartGame() {
         questionIndex = 0
         userScore = 0
