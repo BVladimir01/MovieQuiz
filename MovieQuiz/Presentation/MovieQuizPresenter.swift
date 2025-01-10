@@ -9,16 +9,16 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
-    let numQuestions = 10
-    private(set) var questionIndex = 0
+    private let numQuestions = 10
+    private var questionIndex = 0
     private var userScore = 0
-    var currentQuestion: QuizQuestion? = nil
+    private var currentQuestion: QuizQuestion? = nil
     
-    private weak var viewController: MovieQuizViewController? = nil
-    private var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticServiceProtocol
+    private weak var viewController: MovieQuizViewController? = nil
+    private var questionFactory: QuestionFactoryProtocol? = nil
     
-    var isLastQuestion: Bool {
+    private var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
     }
     
@@ -30,21 +30,19 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController.showLoadingIndicator()
     }
     
-    func restartGame() {
-        questionIndex = 0
-        userScore = 0
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func incrementQuestionIndex() {
-        questionIndex += 1
-    }
-    
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
+    private func convert(model: QuizQuestion) -> QuizStepViewModel {
         QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.quesion,
             questionNumber: "\(questionIndex + 1)/\(numQuestions)")
+    }
+    
+    // MARK: - User intentions
+    
+    func restartGame() {
+        questionIndex = 0
+        userScore = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func yesButtonTapped() {
@@ -62,14 +60,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         proceedWithAnswer(isCorrect: correct)
     }
     
-    func proceedWithAnswer(isCorrect: Bool) {
+    private func proceedWithAnswer(isCorrect: Bool) {
         viewController?.disableButtons()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.proceedToNextQuestionOrResults()
         }
     }
     
-    func proceedToNextQuestionOrResults() {
+    private func proceedToNextQuestionOrResults() {
         if isLastQuestion {
             statisticService.store(correct: userScore, total: numQuestions)
             let resultViewModel = QuizResultViewModel(title: "Этот раунд окончен!",
@@ -79,7 +77,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                                              buttonText: "Сыграть еще раз")
             viewController?.show(quiz: resultViewModel)
         } else {
-            incrementQuestionIndex()
+            questionIndex += 1
             questionFactory?.requestNextQuestion()
         }
     }
