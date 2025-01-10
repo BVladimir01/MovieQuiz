@@ -7,7 +7,6 @@ final class MovieQuizViewController: UIViewController {
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
     private let presenter = MovieQuizPresenter()
-    private var currentQuestion: QuizQuestion? = nil
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
@@ -53,12 +52,10 @@ final class MovieQuizViewController: UIViewController {
     }
     
     @IBAction private func noButtonTapped() {
-        presenter.currentQuestion = currentQuestion
         presenter.noButtonTapped()
     }
     
     @IBAction private func yesButtonTapped() {
-        presenter.currentQuestion = currentQuestion
         presenter.yesButtonTapped()
     }
     
@@ -90,23 +87,23 @@ final class MovieQuizViewController: UIViewController {
         }
     }
     
-    private func enableButtons() {
+    func enableButtons() {
         noButton.isEnabled = true
         yesButton.isEnabled = true
     }
     
-    private func disableButtons() {
+    func disableButtons() {
         noButton.isEnabled = false
         yesButton.isEnabled = false
     }
         
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         textLabel.text = step.question
         imageView.image = step.image
         counterLabel.text = step.questionNumber
     }
     
-    private func show(quiz result: QuizResultViewModel) {
+    func show(quiz result: QuizResultViewModel) {
         let alert = AlertModel(quizResult: result) { [weak self] in
             guard let self else { return }
             self.presenter.resetQuestionIndex()
@@ -114,6 +111,10 @@ final class MovieQuizViewController: UIViewController {
             questionFactory?.requestNextQuestion()
         }
         alertPresenter.presentAlert(alert)
+    }
+    
+    func disableImageBorder() {
+        imageView.layer.borderWidth = 0
     }
     
     private func showLoadingIndicator() {
@@ -134,13 +135,9 @@ final class MovieQuizViewController: UIViewController {
 
 
 extension MovieQuizViewController: QuestionFactoryDelegate {
+    
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question else { return }
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        show(quiz: viewModel)
-        imageView.layer.borderWidth = 0
-        enableButtons()
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {

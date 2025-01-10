@@ -13,6 +13,7 @@ final class MovieQuizPresenter {
     private(set) var questionIndex = 0
     var currentQuestion: QuizQuestion? = nil
     weak var viewController: MovieQuizViewController? = nil
+    
     var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
     }
@@ -33,12 +34,27 @@ final class MovieQuizPresenter {
     }
     
     func yesButtonTapped() {
-        guard let currentQuestion else { return }
-        viewController?.showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        didAnswer(yes: true)
     }
     
     func noButtonTapped() {
+        didAnswer(yes: false)
+    }
+    
+    private func didAnswer(yes answer: Bool) {
         guard let currentQuestion else { return }
-        viewController?.showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        let correct = currentQuestion.correctAnswer ? answer : !answer
+        viewController?.showAnswerResult(isCorrect: correct)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+            self?.viewController?.disableImageBorder()
+            self?.viewController?.enableButtons()
+        }
     }
 }
