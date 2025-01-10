@@ -7,21 +7,31 @@
 
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     let numQuestions = 10
     private(set) var questionIndex = 0
-    var currentQuestion: QuizQuestion? = nil
     private var userScore = 0
-    weak var viewController: MovieQuizViewController? = nil
+    var currentQuestion: QuizQuestion? = nil
+    
+    private weak var viewController: MovieQuizViewController? = nil
+    private var questionFactory: QuestionFactoryProtocol?
     
     var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
     }
     
-    func resetQuestionIndexAndScore() {
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+        self.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        viewController.showLoadingIndicator()
+    }
+    
+    func restartGame() {
         questionIndex = 0
         userScore = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func incrementQuestionIndex() {
@@ -50,17 +60,6 @@ final class MovieQuizPresenter {
         viewController?.showAnswerResult(isCorrect: correct)
     }
     
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question else { return }
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.viewController?.show(quiz: viewModel)
-            self?.viewController?.disableImageBorder()
-            self?.viewController?.enableButtons()
-        }
-    }
-    
     func showNextQuestionOrResults() {
         if isLastQuestion {
             viewController?.statisticService.store(correct: userScore, total: numQuestions)
@@ -72,7 +71,29 @@ final class MovieQuizPresenter {
             viewController?.show(quiz: result)
         } else {
             incrementQuestionIndex()
-            viewController?.questionFactory?.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question else { return }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+            self?.viewController?.disableImageBorder()
+            self?.viewController?.enableButtons()
+        }
+    }
+    
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        viewController?.showNetworkError(message: error.localizedDescription)
     }
 }
