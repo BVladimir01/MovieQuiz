@@ -16,6 +16,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     private weak var viewController: MovieQuizViewController? = nil
     private var questionFactory: QuestionFactoryProtocol?
+    private let statisticService: StatisticServiceProtocol
     
     var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
@@ -23,6 +24,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
+        self.statisticService = StatisticService()
         self.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
@@ -62,13 +64,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func showNextQuestionOrResults() {
         if isLastQuestion {
-            viewController?.statisticService.store(correct: userScore, total: numQuestions)
-            let result = QuizResultViewModel(title: "Этот раунд окончен!",
+            statisticService.store(correct: userScore, total: numQuestions)
+            let resultViewModel = QuizResultViewModel(title: "Этот раунд окончен!",
                                              score: userScore,
                                              numQuestions: numQuestions,
-                                             statisticService: viewController!.statisticService,
+                                             statisticService: statisticService,
                                              buttonText: "Сыграть еще раз")
-            viewController?.show(quiz: result)
+            viewController?.show(quiz: resultViewModel)
         } else {
             incrementQuestionIndex()
             questionFactory?.requestNextQuestion()
