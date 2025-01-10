@@ -15,14 +15,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion? = nil
     
     private let statisticService: StatisticServiceProtocol
-    private weak var viewController: MovieQuizViewController? = nil
+    private weak var viewController: MovieQuizViewControllerProtocol? = nil
     private var questionFactory: QuestionFactoryProtocol? = nil
     
     private var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
     }
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         self.statisticService = StatisticService()
         self.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -31,7 +31,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         self.viewController?.setButtons(enabled: false)
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.quesion,
