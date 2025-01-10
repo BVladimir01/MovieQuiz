@@ -9,9 +9,10 @@ import UIKit
 
 final class MovieQuizPresenter {
     
-    private(set) var questionIndex = 0
     let numQuestions = 10
-    
+    private(set) var questionIndex = 0
+    var currentQuestion: QuizQuestion? = nil
+    weak var viewController: MovieQuizViewController? = nil
     var isLastQuestion: Bool {
         questionIndex == numQuestions - 1
     }
@@ -31,5 +32,13 @@ final class MovieQuizPresenter {
             questionNumber: "\(questionIndex + 1)/\(numQuestions)")
     }
     
+    func yesButtonTapped() {
+        guard let currentQuestion else { return }
+        viewController?.showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+    }
     
+    func noButtonTapped() {
+        guard let currentQuestion else { return }
+        viewController?.showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+    }
 }

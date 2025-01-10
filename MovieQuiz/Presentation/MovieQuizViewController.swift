@@ -4,10 +4,10 @@ final class MovieQuizViewController: UIViewController {
     
     private var userScore = 0
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion? = nil
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
     private let presenter = MovieQuizPresenter()
+    private var currentQuestion: QuizQuestion? = nil
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
@@ -45,6 +45,7 @@ final class MovieQuizViewController: UIViewController {
         questionFactory.loadData()
         questionFactory.requestNextQuestion()
         
+        presenter.viewController = self
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -52,16 +53,16 @@ final class MovieQuizViewController: UIViewController {
     }
     
     @IBAction private func noButtonTapped() {
-        guard let currentQuestion else { return }
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonTapped()
     }
     
     @IBAction private func yesButtonTapped() {
-        guard let currentQuestion else { return }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonTapped()
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         disableButtons()
         let color: UIColor = isCorrect ? .ypGreen : .ypRed
         imageView.layer.borderWidth = 8
