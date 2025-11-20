@@ -14,7 +14,7 @@ A movie quize game
 
 ## Installation
 ```bash
-git clone https://github.com/BVladimir01/MovieQuiz
+git clone https://github.com/BVladimir01/MovieQuiz.git
 cd MovieQuiz
 open MovieQuiz.xcodeproj
 ```
